@@ -2,8 +2,25 @@ import express from "express"
 
 const app = express()
 
-app.get("/", (req, res) => {
-    res.send("Hello")
+app.get('/api/places', (req, res) => {
+    const searchText = req.query.q
+    res.setHeader('content-type', 'application/json')
+    res.send({
+        "places": [
+            {
+                "name": "Mairie",
+                "city": "Montigny-sur-Loing"
+            },
+            {
+                "name": "Supermarché",
+                "city": "Montigny-sur-Loing"
+            },
+            {
+                "name": "Gymnase",
+                "city": "Montigny-sur-Loing"
+            }
+        ]
+    })
 })
 
 const PORT = 8080
