@@ -1,17 +1,20 @@
-import http from "node:http"
+import express from "express"
 
-const server = http.createServer(
-    async (_, res) => {
-        res.writeHead(200, { "content-type": "text/plain" })
-        res.end("Hey")
-    })
+const app = express()
+
+app.get("/", (req, res) => {
+    res.send("Hello")
+})
 
 const PORT = 8080
 
-server.listen(
+app.listen(
     PORT,
-    () => {
-        console.log("Server started")
-        console.log(`Listening on URL: http://localhost:${PORT}`)
+    (err) => {
+        console.log(`App listening on URL: http://localhost:${PORT}`)
+        if (err) {
+            console.log(`App called back with error: ${err}`)
+        }
     }
 )
+
