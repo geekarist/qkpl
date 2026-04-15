@@ -7,7 +7,8 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ."
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
