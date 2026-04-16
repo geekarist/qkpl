@@ -10,15 +10,22 @@ app.get('/api/places', async (req, res) => {
     const remoteRes = await fetch(
         `https://api.jawg.io/places/v1/autocomplete?text=${searchText}&access-token=${remoteToken}`
     )
-    const remoteResJson = await remoteRes.json()
-    res.send({
-        places: remoteResJson.features.map(
-            (feature: any) => {
-                return {
-                    name: feature.properties.label
-                }
-            })
-    })
+    if (remoteRes.ok) {
+        const remoteResJson = await remoteRes.json()
+        res.send({
+            places: remoteResJson.features.map(
+                (feature: any) => {
+                    return {
+                        name: feature.properties.label
+                    }
+                })
+        })
+    } else {
+        res.status(503).send({
+            "type": "PLACES_UPSTREAM_ERROR",
+            "message": "Upstream service failed"
+        })
+    }
 })
 
 const PORT = 8080
