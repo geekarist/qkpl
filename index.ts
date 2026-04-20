@@ -8,9 +8,9 @@ function run<T>(block: () => T): T { return block() }
 app.get('/api/places', async (req, res) => {
     const searchText = req.query.q
     res.setHeader('content-type', 'application/json')
-    const remoteToken = secretConfig.jawg["access-token"]
     const result = await run(async () => {
         try {
+            const remoteToken = secretConfig.jawg["access-token"]
             const remoteRes = await fetch(
                 `https://api.jawg.io/places/v1/autocomplete?text=${searchText}&access-token=${remoteToken}`
             )
