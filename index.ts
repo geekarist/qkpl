@@ -1,16 +1,60 @@
 import express from "express"
 import secretConfig from './secret/config.json' with { type: "json" }
+import sqlite from "node:sqlite"
 
 const app = express()
 
 function run<T>(block: () => T): T { return block() }
 
+const database = new sqlite.DatabaseSync('database.db')
+const dbInitReq = `
+CREATE TABLE IF NOT EXISTS searches (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    query TEXT,
+    submit_date TEXT
+)
+`.trim()
+
+database.exec(dbInitReq)
+
+const selectSearchesReq = `
+SELECT * 
+FROM searches 
+ORDER BY submit_date DESC
+`.trim()
+
+app.get('/api/searches', async (req, res) => {
+    const stmt = database.prepare(selectSearchesReq)
+    const searches = stmt.all().map((record) => {
+        return {
+            id: record.id,
+            query: record.query
+        }
+    })
+    const resVal = {
+        status: 200,
+        body: {
+            searches: searches
+        }
+    }
+    res.status(resVal.status).send(resVal.body)
+})
+
+const insertSearchReq = `
+INSERT INTO searches
+VALUES (?, ?, ?)
+`.trim()
+
 app.get('/api/places', async (req, res) => {
-    const searchText = req.query.q
+    const searchText = req.query.q?.toString()
     res.setHeader('content-type', 'application/json')
-    const remoteToken = secretConfig.jawg["access-token"]
+    const stmt = database.prepare(insertSearchReq)
+    if (searchText) {
+        stmt.run(null, searchText, new Date().toISOString())
+    }
     const result = await run(async () => {
         try {
+            const remoteToken = secretConfig.jawg["access-token"]
             const remoteRes = await fetch(
                 `https://api.jawg.io/places/v1/autocomplete?text=${searchText}&access-token=${remoteToken}`
             )
