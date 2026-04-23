@@ -10,7 +10,7 @@ const database = new sqlite.DatabaseSync('database.db')
 const dbInitReq = `
 CREATE TABLE IF NOT EXISTS searches (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
-    query TEXT,
+    query TEXT UNIQUE ON CONFLICT REPLACE,
     submit_date TEXT
 )
 `.trim()
@@ -26,9 +26,11 @@ ORDER BY submit_date DESC
 app.get('/api/searches', async (req, res) => {
     const stmt = database.prepare(selectSearchesReq)
     const searches = stmt.all().map((record) => {
+        const submitDateStr = record.submit_date?.toString() ?? "unknown"
         return {
             id: record.id,
-            query: record.query
+            query: record.query,
+            submit_date: new Date(submitDateStr).toLocaleString()
         }
     })
     const resVal = {
